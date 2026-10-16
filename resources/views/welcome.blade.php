@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,7 @@
 
         /* =========================
            NAVBAR
-        ========================= */
+        ========================== */
 
         .navbar {
             height: 70px;
@@ -64,7 +65,7 @@
 
         /* =========================
            HERO
-        ========================= */
+        ========================== */
 
         .hero {
             min-height: 420px;
@@ -143,7 +144,7 @@
 
         /* =========================
            HERO IMAGE
-        ========================= */
+        ========================== */
 
         .hero-image {
             width: 45%;
@@ -160,6 +161,7 @@
             overflow: hidden;
 
             background: #d8eef2;
+
             box-shadow: 0 15px 35px rgba(0, 90, 110, 0.12);
         }
 
@@ -172,7 +174,7 @@
 
         /* =========================
            POPULAR SECTION
-        ========================= */
+        ========================== */
 
         .popular {
             padding: 55px 8% 70px;
@@ -204,7 +206,7 @@
 
         /* =========================
            CARD
-        ========================= */
+        ========================== */
 
         .culture-card {
             background: #ffffff;
@@ -278,7 +280,7 @@
 
         /* =========================
            FOOTER
-        ========================= */
+        ========================== */
 
         .footer {
             background: #f4fafb;
@@ -290,7 +292,7 @@
 
         /* =========================
            RESPONSIVE
-        ========================= */
+        ========================== */
 
         @media (max-width: 900px) {
 
@@ -419,8 +421,8 @@
             <div class="hero-image-box">
 
                 <img
-                   src="{{ asset('images/Budaya.batam.jpg') }}"
-                 alt="Kebudayaan Kota Batam"
+                    src="{{ asset('images/Budaya.batam.jpg') }}"
+                    alt="Kebudayaan Kota Batam"
                 >
 
             </div>
@@ -438,7 +440,9 @@
 
         <div class="section-title">
 
-            <small>✦ TEMPAT POPULER</small>
+            <small>
+                ✦ TEMPAT POPULER
+            </small>
 
             <h2>
                 Jelajahi Budaya Kota Batam
@@ -448,7 +452,6 @@
 
 
         <div class="popular-grid">
-
 
             <!-- CARD 1 -->
 
@@ -478,7 +481,10 @@
                         yang berkembang di Kota Batam.
                     </p>
 
-                    <a href="{{ url('/peta') }}" class="detail-link">
+                    <a
+                        href="{{ url('/peta') }}"
+                        class="detail-link"
+                    >
                         Lihat detail →
                     </a>
 
@@ -515,7 +521,10 @@
                         yang menjadi bagian dari identitas Batam.
                     </p>
 
-                    <a href="{{ url('/peta') }}" class="detail-link">
+                    <a
+                        href="{{ url('/peta') }}"
+                        class="detail-link"
+                    >
                         Lihat detail →
                     </a>
 
@@ -552,7 +561,10 @@
                         bagian dari kekayaan budaya Kota Batam.
                     </p>
 
-                    <a href="{{ url('/peta') }}" class="detail-link">
+                    <a
+                        href="{{ url('/peta') }}"
+                        class="detail-link"
+                    >
                         Lihat detail →
                     </a>
 
@@ -589,7 +601,10 @@
                         masyarakat di Kota Batam.
                     </p>
 
-                    <a href="{{ url('/peta') }}" class="detail-link">
+                    <a
+                        href="{{ url('/peta') }}"
+                        class="detail-link"
+                    >
                         Lihat detail →
                     </a>
 
@@ -616,4 +631,5 @@
     </footer>
 
 </body>
-</html> 
+
+</html>

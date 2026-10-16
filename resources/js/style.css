@@ -14,45 +14,56 @@ body {
    NAVBAR
 ========================= */
 
-nav {
-    height: 72px;
+.navbar {
+    height: 70px;
+    padding: 0 8%;
 
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 
-    padding: 0 7%;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
 
-    background: rgba(255, 255, 255, 0.95);
-
-    border-bottom: 1px solid #dcebed;
-
-    position: sticky;
-    top: 0;
-
-    z-index: 1000;
+    box-sizing: border-box;
 }
 
-nav h2 {
-    color: #126b83;
+.navbar h2 {
+    margin: 0;
+
     font-size: 22px;
+    font-weight: 700;
+
+    color: #0782aa;
 }
 
-nav div {
+.navbar-menu {
     display: flex;
-    gap: 32px;
+    align-items: center;
+    gap: 38px;
 }
 
-nav a {
+.navbar-menu a {
     text-decoration: none;
-    color: #35434a;
-    font-size: 15px;
 
-    transition: 0.3s;
+    font-size: 14px;
+    font-weight: 400;
+
+    color: #111827;
+
+    transition: 0.2s;
 }
 
-nav a:hover {
-    color: #13839d;
+.navbar-menu a:hover {
+    color: #0782aa;
+}
+
+
+
+/* Hanya halaman yang sedang aktif berwarna biru */
+.navbar-menu a.active {
+    color: #0782aa;
+    font-weight: 600;
 }
 
 
@@ -391,5 +402,801 @@ nav a:hover {
 
     .map-card .leaflet-container {
         height: 450px;
+    }
+}
+
+/* =========================
+   HALAMAN PETA
+========================= */
+
+.peta-container {
+    min-height: calc(100vh - 70px);
+    padding: 40px 8% 60px;
+    background: linear-gradient(
+        135deg,
+        #f1fbfd,
+        #dff5f8
+    );
+}
+
+/* =========================
+   HEADER PETA
+========================= */
+
+.peta-header {
+    margin-bottom: 20px;
+}
+
+.peta-label {
+    margin-bottom: 8px;
+    color: #0782aa;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.peta-header h1 {
+    margin: 0 0 10px;
+    font-size: 32px;
+    color: #111827;
+}
+
+.peta-header p {
+    margin: 0;
+    color: #506477;
+    font-size: 15px;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-box {
+    width: 100%;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 0 18px;
+    margin: 20px 0 15px;
+
+    background: white;
+
+    border: 1px solid #d9edf1;
+    border-radius: 25px;
+
+    box-shadow: 0 5px 15px rgba(0, 120, 160, 0.08);
+}
+
+.search-box span {
+    font-size: 18px;
+}
+
+.search-box input {
+    flex: 1;
+
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    font-size: 15px;
+
+    color: #183047;
+    background: transparent;
+}
+
+.search-box input::placeholder {
+    color: #8998a5;
+}
+
+
+/* =========================
+   FILTER
+========================= */
+
+.filter-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin: 0 0 25px;
+}
+
+.filter-list button {
+    border: 1px solid #d9edf1;
+
+    padding: 11px 20px;
+
+    border-radius: 25px;
+
+    background: white;
+    color: #183047;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 12px rgba(0, 120, 160, 0.08);
+
+    transition: 0.2s;
+}
+
+.filter-list button:hover {
+    background: #0782aa;
+    color: white;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   MAP
+========================= */
+
+.interactive-map {
+    width: 100%;
+
+    padding: 10px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    border: 1px solid #d9edf1;
+
+    box-shadow: 0 10px 30px rgba(0, 100, 140, 0.12);
+
+    overflow: hidden;
+}
+
+.interactive-map .leaflet-container {
+    width: 100%;
+    height: 560px;
+
+    border-radius: 15px;
+}
+
+
+/* =========================
+   RESPONSIVE PETA
+========================= */
+
+@media (max-width: 800px) {
+
+    .peta-container {
+        padding: 30px 25px 50px;
+    }
+
+    .peta-header h1 {
+        font-size: 28px;
+    }
+
+    .filter-list {
+        justify-content: flex-start;
+    }
+
+    .interactive-map .leaflet-container {
+        height: 450px;
+    }
+}
+
+/* ===== HALAMAN TENTANG BATAM CULTURE ===== */
+
+.tentang-page {
+    min-height: calc(100vh - 52px);
+    background: linear-gradient(135deg, #effbfc, #e2f7f9);
+    color: #17324d;
+    font-family: inherit;
+}
+
+/* Hero */
+.tentang-hero {
+    padding: 55px 24px;
+    text-align: center;
+    background: linear-gradient(120deg, #e8f9fb, #c9f0f5);
+}
+
+.tentang-label {
+    display: block;
+    margin-bottom: 14px;
+    color: #0891b2;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.tentang-hero h1 {
+    margin: 0 0 16px;
+    color: #123047;
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.tentang-hero p {
+    max-width: 650px;
+    margin: auto;
+    color: #476579;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* Tentang website */
+.tentang-content {
+    max-width: 1100px;
+    margin: auto;
+    padding: 55px 30px;
+    box-sizing: border-box;
+}
+
+.tentang-subtitle {
+    color: #0891b2;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.tentang-content h2 {
+    margin: 14px 0 20px;
+    color: #123047;
+    font-size: clamp(25px, 3vw, 32px);
+    line-height: 1.4;
+}
+
+.tentang-content p {
+    margin: 12px 0;
+    color: #536d80;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+/* Tujuan website */
+.tentang-tujuan {
+    padding: 55px 30px 70px;
+    text-align: center;
+    background: #f4fbfc;
+    box-sizing: border-box;
+}
+
+.tentang-tujuan > h2 {
+    margin: 0 0 35px;
+    color: #123047;
+    font-size: 29px;
+    font-weight: 750;
+}
+
+.tujuan-list {
+    max-width: 1100px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    text-align: left;
+}
+
+.tujuan-list article {
+    padding: 27px 24px;
+    background: #ffffff;
+    border: 1px solid #ccebf0;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(8, 145, 178, 0.07);
+    transition: transform 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+.tujuan-list article:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 26px rgba(8, 145, 178, 0.14);
+}
+
+.tujuan-list h3 {
+    margin: 0 0 14px;
+    color: #087e9e;
+    font-size: 18px;
+}
+
+.tujuan-list p {
+    margin: 0;
+    color: #536d80;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* Tampilan mobile */
+@media (max-width: 768px) {
+    .tentang-hero {
+        padding: 45px 20px;
+    }
+
+    .tentang-content {
+        padding: 40px 22px;
+    }
+
+    .tentang-tujuan {
+        padding: 40px 20px;
+    }
+
+    .tentang-tujuan > h2 {
+        font-size: 25px;
+    }
+
+    .tujuan-list {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+}
+
+.site-footer {
+    width: 100%;
+    background: #12364f;
+    color: #ffffff;
+    margin-top: 0;
+}
+
+.footer-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 42px 32px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 60px;
+}
+
+.footer-about h2 {
+    margin: 0 0 14px;
+    color: #62d4eb;
+    font-size: 25px;
+    font-weight: 750;
+}
+
+.footer-about p {
+    max-width: 450px;
+    margin: 0;
+    color: #d6e5ef;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.footer-contact h3 {
+    margin: 0 0 18px;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.footer-contact p {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    color: #d6e5ef;
+    font-size: 14px;
+}
+
+.footer-contact span {
+    color: #62d4eb;
+    font-size: 20px;
+}
+
+.footer-contact a {
+    color: #d6e5ef;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-contact a:hover {
+    color: #62d4eb;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 18px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: #c3d7e5;
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 32px 22px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        padding: 18px;
+    }
+}
+
+
+/* POPUP DETAIL BUDAYA */
+
+.budaya-popup .leaflet-popup-content-wrapper {
+    border-radius: 14px;
+    padding: 4px;
+}
+
+.budaya-popup .leaflet-popup-content {
+    width: 220px !important;
+    margin: 10px;
+}
+
+.popup-budaya {
+    text-align: left;
+}
+
+.popup-budaya-image {
+    width: 100%;
+    height: 115px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.popup-budaya h3 {
+    font-size: 16px;
+    margin: 0 0 7px;
+    color: #394959;
+}
+
+.popup-budaya p {
+    font-size: 13px;
+    color: #6A89A7;
+    margin: 0 0 12px;
+}
+
+.popup-budaya button {
+    display: block;
+    margin: 0 auto;
+    border: none;
+    border-radius: 22px;
+    padding: 9px 18px;
+    background: #6A89A7;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.popup-budaya button:hover {
+    background: #394959;
+}
+
+/* =========================
+   HALAMAN DETAIL BUDAYA
+========================= */
+
+.detail-budaya-page {
+    min-height: 100vh;
+    background: #F5F8FB;
+    color: #394959;
+}
+
+.detail-budaya-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 30px 50px;
+}
+
+.detail-back {
+    display: inline-block;
+    margin-bottom: 24px;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    color: #394959;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.detail-back:hover {
+    color: #6A89A7;
+}
+
+.detail-budaya-card {
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1px solid #DCE4EC;
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(57, 73, 89, 0.08);
+}
+
+.detail-budaya-photo {
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    background: #E8EEF5;
+}
+
+.detail-budaya-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail-budaya-heading {
+    padding: 24px 28px;
+}
+
+.detail-category {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #6A89A7;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.detail-budaya-heading h1 {
+    margin: 0 0 12px;
+    color: #394959;
+    font-size: 30px;
+    line-height: 1.35;
+}
+
+.detail-address {
+    color: #536779;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.detail-tabs {
+    display: flex;
+    margin: 0 28px;
+    border-bottom: 1px solid #DCE4EC;
+    gap: 28px;
+}
+
+.detail-tabs button {
+    padding: 15px 20px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #536779;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.detail-tabs button.active {
+    border-bottom-color: #6A89A7;
+    color: #394959;
+}
+
+.detail-tab-content {
+    min-height: 190px;
+    padding: 26px 28px;
+}
+
+.detail-tab-content h2 {
+    margin: 0 0 12px;
+    color: #394959;
+    font-size: 19px;
+}
+
+.detail-tab-content p {
+    color: #536779;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.detail-location-title {
+    margin-top: 24px !important;
+}
+
+.detail-media-image {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    max-height: 300px;
+    margin: 16px 0;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.detail-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 28px 28px;
+}
+
+.detail-actions button,
+.detail-not-found button {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.detail-map-button {
+    background: #6A89A7;
+    color: #FFFFFF;
+}
+
+.detail-route-button {
+    background: #E8EEF5;
+    color: #394959;
+}
+
+.detail-actions button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.detail-not-found {
+    padding: 60px 24px;
+    text-align: center;
+}
+
+.detail-not-found button {
+    margin-top: 20px;
+    background: #6A89A7;
+    color: #FFFFFF;
+}
+
+@media (max-width: 768px) {
+    .detail-budaya-container {
+        padding: 22px 16px 35px;
+    }
+
+    .detail-budaya-photo {
+        height: 230px;
+    }
+
+    .detail-budaya-heading {
+        padding: 20px;
+    }
+
+    .detail-budaya-heading h1 {
+        font-size: 24px;
+    }
+
+    .detail-tabs {
+        margin: 0 20px;
+        gap: 12px;
+    }
+
+    .detail-tab-content {
+        padding: 22px 20px;
+    }
+
+    .detail-actions {
+        padding: 18px 20px 22px;
+        flex-wrap: wrap;
+    }
+
+    .detail-actions button {
+        flex: 1;
+        padding: 12px 14px;
+    }
+}
+
+
+/* =========================
+   FOTO / VIDEO BUDAYA
+========================= */
+
+.budaya-media {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    align-items: start;
+    position: relative;
+}
+
+.budaya-video {
+    width: 100%;
+    overflow: hidden;
+    background: #394959;
+    border-radius: 12px;
+}
+
+.budaya-video video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+}
+
+.budaya-galeri {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.budaya-foto-item {
+    width: 100%;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #E8EEF5;
+    cursor: pointer;
+}
+
+.budaya-foto-item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+}
+
+.budaya-foto-item:hover {
+    border-color: #6A89A7;
+}
+
+.budaya-foto-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Tampilan foto besar */
+
+.budaya-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background: rgba(25, 35, 45, 0.88);
+}
+
+.budaya-lightbox > img {
+    display: block;
+    max-width: 90%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.budaya-lightbox-close {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #394959;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Responsif */
+
+@media (max-width: 768px) {
+    .budaya-media {
+        grid-template-columns: 1fr;
+    }
+
+    .budaya-galeri {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .budaya-lightbox {
+        padding: 16px;
     }
 }
