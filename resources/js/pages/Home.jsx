@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Map from "../components/Map";
 
@@ -48,28 +49,28 @@ function Home() {
 
             </section>
 
-            <section className="map-wrapper">
+           <section id="peta" className="map-wrapper">
 
-                <div className="map-title">
-                    <div>
-                        <span>📍 PETA SEBARAN</span>
+    <div className="map-title">
+        <div>
+            <span>📍 PETA SEBARAN</span>
 
-                        <h2>
-                            Temukan Budaya di Sekitarmu
-                        </h2>
-                    </div>
+            <h2>
+                Temukan Budaya di Sekitarmu
+            </h2>
+        </div>
 
-                    <p>
-                        Klik marker pada peta untuk
-                        melihat informasi budaya.
-                    </p>
-                </div>
+        <p>
+            Klik marker pada peta untuk
+            melihat informasi budaya.
+        </p>
+    </div>
 
-                <div className="map-card">
-                    <Map />
-                </div>
+    <div className="map-card">
+        <Map />
+    </div>
 
-            </section>
+</section>
 
             <section className="info-section">
 
