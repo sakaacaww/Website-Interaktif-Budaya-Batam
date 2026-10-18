@@ -1,7 +1,8 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-
+import AdminLogin from "./pages/AdminLogin.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Home from "./pages/Home.jsx";
 import Peta from "./pages/Peta.jsx";
 import Tentang from "./pages/Tentang.jsx";
