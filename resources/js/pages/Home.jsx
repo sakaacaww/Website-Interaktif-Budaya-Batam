@@ -1,117 +1,126 @@
-import { Link } from "react-router-dom";
+
 import Navbar from "../components/Navbar";
-import Map from "../components/Map";
 
 function Home() {
-    return (
-        <div className="home">
+    const budaya = [
+        {
+            kategori: "Tradisi",
+            nama: "Budaya Melayu",
+            deskripsi:
+                "Mengenal tradisi dan warisan budaya Melayu yang berkembang di Kota Batam.",
+            gambar: "/images/budaya-1.jpg",
+        },
+        {
+            kategori: "Seni",
+            nama: "Seni Tradisional",
+            deskripsi:
+                "Temukan berbagai kesenian tradisional yang menjadi bagian dari identitas Batam.",
+            gambar: "/images/budaya-2.jpg",
+        },
+        {
+            kategori: "Kuliner",
+            nama: "Kuliner Khas Batam",
+            deskripsi:
+                "Kenali makanan khas yang menjadi bagian dari kekayaan budaya Kota Batam.",
+            gambar: "/images/budaya-3.jpg",
+        },
+        {
+            kategori: "Sejarah",
+            nama: "Sejarah Batam",
+            deskripsi:
+                "Mengenal sejarah dan perkembangan budaya masyarakat di Kota Batam.",
+            gambar: "/images/budaya-4.jpg",
+        },
+    ];
 
+    return (
+        <div className="bc-home">
             <Navbar />
 
-            <section className="map-header">
+            {/* HERO */}
+            <section className="bc-hero">
+                <div className="bc-hero-content">
+                    <div className="bc-hero-badge">
+                        ✦ WARISAN BUDAYA KEPULAUAN RIAU
+                    </div>
 
-                <div className="header-badge">
-                    ✦ WARISAN BUDAYA KEPULAUAN RIAU
+                    <h1 className="bc-hero-title">
+                        Jelajahi
+                        <br />
+                        Seni dan Budaya
+                        <br />
+                        <span>Kota Batam</span>
+                    </h1>
+
+                    <p className="bc-hero-description">
+                        Temukan berbagai seni, tradisi, makanan, dan
+                        warisan budaya khas Kepulauan Riau yang
+                        tersebar di Kota Batam.
+                    </p>
+
+                    <a href="/peta" className="bc-map-button">
+                        Lihat Peta <span>→</span>
+                    </a>
                 </div>
 
-                <h1>
-                    Jelajahi Budaya
-                    <span> Kota Batam</span>
-                </h1>
+                <div className="bc-hero-image">
+                    <img
+                        src="/images/museum-batam.jpg"
+                        alt="Warisan budaya Kota Batam"
+                    />
+                </div>
+            </section>
 
-                <p className="header-description">
-                    Temukan berbagai seni, tradisi, dan warisan budaya
-                    khas Kepulauan Riau yang tersebar di Kota Batam
-                    melalui peta interaktif.
+            {/* BUDAYA POPULER */}
+            <section className="bc-popular">
+                <div className="bc-section-heading">
+                    <span>✦ TEMPAT POPULER</span>
+                    <h2>Jelajahi Budaya Kota Batam</h2>
+                </div>
+
+                <div className="bc-culture-grid">
+                    {budaya.map((item) => (
+                        <article
+                            className="bc-culture-card"
+                            key={item.kategori}
+                        >
+                            <div className="bc-culture-image">
+                                <img
+                                    src={item.gambar}
+                                    alt={item.nama}
+                                    loading="lazy"
+                                />
+                            </div>
+
+                            <div className="bc-culture-content">
+                                <span className="bc-culture-category">
+                                    {item.kategori}
+                                </span>
+
+                                <h3>{item.nama}</h3>
+
+                                <p>{item.deskripsi}</p>
+
+                                <a
+                                    href="/peta"
+                                    className="bc-detail-link"
+                                >
+                                    Lihat detail →
+                                </a>
+                            </div>
+                        </article>
+                    ))}
+                </div>
+            </section>
+
+            {/* FOOTER */}
+            <footer className="bc-footer">
+                <p>
+                    © {new Date().getFullYear()} Batam Culture.
+                    Sebaran dan Informasi Seni &amp; Budaya Khas
+                    Kepulauan Riau di Kota Batam.
                 </p>
-
-                <div className="category-list">
-                    <div className="category-item">
-                        🎭
-                        <span>Seni</span>
-                    </div>
-
-                    <div className="category-item">
-                        🪕
-                        <span>Tradisi</span>
-                    </div>
-
-                    <div className="category-item">
-                        📜
-                        <span>Sejarah</span>
-                    </div>
-
-                    <div className="category-item">
-                        🍽️
-                        <span>Kuliner</span>
-                    </div>
-                </div>
-
-            </section>
-
-           <section id="peta" className="map-wrapper">
-
-    <div className="map-title">
-        <div>
-            <span>📍 PETA SEBARAN</span>
-
-            <h2>
-                Temukan Budaya di Sekitarmu
-            </h2>
-        </div>
-
-        <p>
-            Klik marker pada peta untuk
-            melihat informasi budaya.
-        </p>
-    </div>
-
-    <div className="map-card">
-        <Map />
-    </div>
-
-</section>
-
-            <section className="info-section">
-
-                <div className="info-card">
-                    <div className="info-icon">📍</div>
-
-                    <div>
-                        <strong>Lokasi Budaya</strong>
-                        <p>
-                            Jelajahi lokasi budaya yang
-                            tersebar di Kota Batam.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="info-card">
-                    <div className="info-icon">📖</div>
-
-                    <div>
-                        <strong>Informasi Budaya</strong>
-                        <p>
-                            Kenali sejarah dan informasi
-                            budaya Kepulauan Riau.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="info-card">
-                    <div className="info-icon">🌊</div>
-
-                    <div>
-                        <strong>Kepulauan Riau</strong>
-                        <p>
-                            Mengenal kekayaan budaya
-                            masyarakat Melayu.
-                        </p>
-                    </div>
-                </div>
-
-            </section>
-
+            </footer>
         </div>
     );
 }

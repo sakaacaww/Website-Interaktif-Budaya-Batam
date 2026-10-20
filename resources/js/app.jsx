@@ -6,6 +6,8 @@ import Home from "./pages/Home.jsx";
 import Peta from "./pages/Peta.jsx";
 import Tentang from "./pages/Tentang.jsx";
 import DetailBudaya from "./pages/DetailBudaya.jsx";
+import AdminLogin from "./pages/AdminLogin.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 import "./style.css";
 
@@ -16,6 +18,14 @@ function App() {
     const params = new URLSearchParams(window.location.search);
 
     console.log("Halaman saat ini:", halaman);
+
+    if (halaman === "/admin/login") {
+        return <AdminLogin />;
+    }
+
+    if (halaman === "/admin/dashboard") {
+        return <AdminDashboard />;
+    }
 
     if (halaman === "/peta" && params.has("detail")) {
         return <DetailBudaya />;
