@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Map from "../components/Map";
 
 function Peta() {
+    const [kataKunci, setKataKunci] = useState("");
     return (
         <>
             <Navbar />
@@ -24,10 +26,12 @@ function Peta() {
                 <div className="search-box">
                     <span>🔍</span>
 
-                    <input
+                   <input
                         type="text"
                         placeholder="Cari Tempat atau Lokasi"
-                    />
+                        value={kataKunci}
+                        onChange={(e) => setKataKunci(e.target.value)}
+                        />
                 </div>
 
                 <div className="filter-list">
