@@ -58,8 +58,7 @@ function AdminLogin() {
                     <span className="admin-login-label">ADMINISTRATOR</span>
                     <h1>Selamat Datang!</h1>
                     <p>
-                        Silakan masuk untuk mengelola informasi
-                        seni dan budaya Kota Batam.
+                         Masuk ke panel administrasi Batam Culture.
                     </p>
                 </div>
 
