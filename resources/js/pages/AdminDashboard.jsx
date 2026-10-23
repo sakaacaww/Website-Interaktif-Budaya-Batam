@@ -1,136 +1,180 @@
 
 import React from "react";
+import "../style.css";
 
-function AdminDashboard() {
+export default function AdminDashboard() {
+    const statistik = [
+        { nama: "Total Tempat", jumlah: 2, icon: "📍" },
+        { nama: "Rumah Ibadah", jumlah: 1, icon: "🕌" },
+        { nama: "Seni & Pertunjukan", jumlah: 1, icon: "🎭" },
+        { nama: "Museum", jumlah: 0, icon: "🏛️" },
+        { nama: "Bangunan Bersejarah", jumlah: 0, icon: "🏠" },
+    ];
+
+    const dataTempat = [
+        {
+            id: 1,
+            nama: "Masjid Tua",
+            kategori: "Rumah Ibadah",
+            lokasi: "Kampung Tua",
+        },
+        {
+            id: 2,
+            nama: "Sanggar Tari",
+            kategori: "Seni & Pertunjukan",
+            lokasi: "Batam Center",
+        },
+    ];
+
     return (
-        <div className="admin-dashboard">
-            <aside className="admin-sidebar">
-                <div className="admin-brand">
-                    <div className="admin-brand-logo">BC</div>
-                    <span>Batam Culture</span>
-                </div>
+        <div className="bc-admin-page">
+            <h1 className="bc-admin-title">Dashboard Admin</h1>
 
-                <div className="admin-profile">
-                    <div className="admin-avatar">A</div>
-                    <div>
-                        <strong>Administrator</strong>
-                        <p>Pengelola Website</p>
-                    </div>
-                </div>
-
-                <nav className="admin-menu">
-                    <a href="/admin/dashboard" className="active">
-                        <span>▦</span> Dashboard
-                    </a>
-                    <a href="/admin/dashboard">
-                        <span>📍</span> Data Budaya
-                    </a>
-                    <a href="/admin/dashboard">
-                        <span>🖼️</span> Galeri Budaya
-                    </a>
-                    <a href="/admin/dashboard">
-                        <span>📄</span> Artikel Budaya
-                    </a>
-                </nav>
-
-                <a href="/" className="admin-logout">
-                    ← Kembali ke Website
-                </a>
-            </aside>
-
-            <main className="admin-main">
-                <header className="admin-topbar">
-                    <div>
-                        <h1>Dashboard Admin</h1>
-                        <p>Selamat datang di panel pengelolaan Batam Culture.</p>
+            <div className="bc-admin-layout">
+                {/* SIDEBAR */}
+                <aside className="bc-admin-sidebar">
+                    <div className="bc-admin-brand">
+                        Batam
+                        <br />
+                        Culture
                     </div>
 
-                    <a href="/" className="admin-view-site">
-                        Lihat Website ↗
-                    </a>
-                </header>
+                    <nav className="bc-admin-nav">
+                        <a href="/admin/dashboard" className="aktif">
+                            <span className="bc-nav-icon">⌂</span>
+                            <span>Dashboard</span>
+                        </a>
 
-                <section className="admin-welcome">
-                    <div>
-                        <span className="admin-welcome-label">
-                            PANEL ADMINISTRATOR
-                        </span>
-                        <h2>Jelajahi dan Kelola Budaya Batam</h2>
-                        <p>
-                            Kelola informasi seni, tradisi, sejarah,
-                            dan kuliner khas Kota Batam.
-                        </p>
-                    </div>
+                        <a href="/admin/tempat">
+                            <span className="bc-nav-icon">◫</span>
+                            <span>Data Tempat</span>
+                        </a>
 
-                    <div className="admin-welcome-icon">🏝️</div>
-                </section>
+                        <a href="/admin/kategori">
+                            <span className="bc-nav-icon">▤</span>
+                            <span>Kategori</span>
+                        </a>
+                    </nav>
 
-                <section className="admin-stat-grid">
-                    <div className="admin-stat-card">
-                        <div className="admin-stat-icon blue">📍</div>
-                        <p>Total Tempat Budaya</p>
-                        <h3>—</h3>
-                        <span>Data belum dihubungkan</span>
-                    </div>
+                    <form
+                        className="bc-admin-logout-form"
+                        action="/admin/logout"
+                        method="POST"
+                    >
+                        <input
+                            type="hidden"
+                            name="_token"
+                            value={
+                                document.querySelector(
+                                    'meta[name="csrf-token"]'
+                                )?.content || ""
+                            }
+                        />
 
-                    <div className="admin-stat-card">
-                        <div className="admin-stat-icon cyan">🖼️</div>
-                        <p>Total Foto Budaya</p>
-                        <h3>—</h3>
-                        <span>Data belum dihubungkan</span>
-                    </div>
+                        <button type="submit" className="bc-admin-logout">
+                            Logout
+                        </button>
+                    </form>
+                </aside>
 
-                    <div className="admin-stat-card">
-                        <div className="admin-stat-icon orange">📄</div>
-                        <p>Total Artikel</p>
-                        <h3>—</h3>
-                        <span>Data belum dihubungkan</span>
-                    </div>
-                </section>
+                {/* ISI DASHBOARD */}
+                <main className="bc-admin-content">
+                    <h2 className="bc-content-heading">Dashboard</h2>
 
-                <section className="admin-content-card">
-                    <div className="admin-content-heading">
-                        <div>
-                            <h2>Pengelolaan Website</h2>
-                            <p>Ringkasan fitur administrator.</p>
-                        </div>
-                        <span className="admin-status">Panel Admin</span>
-                    </div>
+                    {/* STATISTIK */}
+                    <section className="bc-statistik">
+                        {statistik.map((item) => (
+                            <div className="bc-stat-card" key={item.nama}>
+                                <div className="bc-stat-icon">
+                                    {item.icon}
+                                </div>
 
-                    <div className="admin-feature-grid">
-                        <div className="admin-feature-item">
-                            <span>📍</span>
-                            <div>
-                                <strong>Data Budaya</strong>
-                                <p>Informasi lokasi dan kategori budaya.</p>
+                                <div className="bc-stat-name">
+                                    {item.nama}
+                                </div>
+
+                                <div className="bc-stat-number">
+                                    {item.jumlah}
+                                </div>
                             </div>
-                        </div>
+                        ))}
+                    </section>
 
-                        <div className="admin-feature-item">
-                            <span>🖼️</span>
-                            <div>
-                                <strong>Galeri Budaya</strong>
-                                <p>Dokumentasi foto budaya Batam.</p>
-                            </div>
-                        </div>
+                    {/* TABEL DATA TERBARU */}
+                    <section className="bc-data-section">
+                        <h3>Data Terbaru</h3>
 
-                        <div className="admin-feature-item">
-                            <span>📄</span>
-                            <div>
-                                <strong>Artikel Budaya</strong>
-                                <p>Informasi dan sejarah kebudayaan.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                        <div className="bc-table-wrapper">
+                            <table className="bc-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Tempat</th>
+                                        <th>Kategori</th>
+                                        <th>Lokasi</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
 
-                <footer className="admin-dashboard-footer">
-                    © {new Date().getFullYear()} Batam Culture
-                    <span>Administrator Panel</span>
-                </footer>
-            </main>
+                                <tbody>
+                                    {dataTempat.map((tempat, index) => (
+                                        <tr key={tempat.id}>
+                                            <td>{index + 1}</td>
+                                            <td>{tempat.nama}</td>
+                                            <td>{tempat.kategori}</td>
+                                            <td>{tempat.lokasi}</td>
+                                            <td>
+                                                <div className="bc-table-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="bc-edit-btn"
+                                                        title="Edit tempat"
+                                                        onClick={() =>
+                                                            window.location.href =
+                                                                `/admin/tempat?edit=${tempat.id}`
+                                                        }
+                                                    >
+                                                        ✎
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        className="bc-delete-btn"
+                                                        title="Hapus tempat"
+                                                        onClick={() =>
+                                                            alert(
+                                                                "Hubungkan tombol ini dengan fitur hapus pada halaman Data Tempat."
+                                                            )
+                                                        }
+                                                    >
+                                                        ♜
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {/* Baris kosong seperti wireframe */}
+                                    {Array.from({
+                                        length: Math.max(
+                                            0,
+                                            5 - dataTempat.length
+                                        ),
+                                    }).map((_, index) => (
+                                        <tr key={`kosong-${index}`}>
+                                            <td>&nbsp;</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </main>
+            </div>
         </div>
     );
 }
-
-export default AdminDashboard;

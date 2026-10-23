@@ -62,28 +62,52 @@ Route::post('/admin/login', function (Request $request) {
 })->name('admin.login.process');
 
 // =========================
-// DASHBOARD ADMIN - REACT
+// HALAMAN ADMIN - REACT
 // =========================
 
-Route::get('/admin/dashboard', function () {
-    abort_unless(
-        Auth::check() && Auth::user()->role === 'admin',
-        403,
-        'Akses khusus administrator.'
-    );
+Route::middleware('auth')->group(function () {
 
-    return view('welcome');
-})->middleware('auth')->name('admin.dashboard');
+    // DASHBOARD ADMIN
+    Route::get('/admin/dashboard', function () {
+        abort_unless(
+            Auth::user()->role === 'admin',
+            403,
+            'Akses khusus administrator.'
+        );
 
-// =========================
-// LOGOUT ADMIN
-// =========================
+        return view('welcome');
+    })->name('admin.dashboard');
 
-Route::post('/admin/logout', function (Request $request) {
-    Auth::logout();
+    // KELOLA DATA TEMPAT
+    Route::get('/admin/tempat', function () {
+        abort_unless(
+            Auth::user()->role === 'admin',
+            403,
+            'Akses khusus administrator.'
+        );
 
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+        return view('welcome');
+    })->name('admin.tempat');
 
-    return redirect('/admin/login');
-})->middleware('auth')->name('admin.logout');
+    // KELOLA KATEGORI
+    Route::get('/admin/kategori', function () {
+        abort_unless(
+            Auth::user()->role === 'admin',
+            403,
+            'Akses khusus administrator.'
+        );
+
+        return view('welcome');
+    })->name('admin.kategori');
+
+    // LOGOUT ADMIN
+    Route::post('/admin/logout', function (Request $request) {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/admin/login');
+    })->name('admin.logout');
+
+});
