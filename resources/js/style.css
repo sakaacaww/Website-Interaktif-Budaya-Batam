@@ -1,13 +1,20 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #17202a;
     background: #eef8fa;
+}
+
+/* Font Poppins untuk judul */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Poppins', sans-serif;
 }
 
 /* =========================
@@ -34,7 +41,7 @@ body {
     font-size: 22px;
     font-weight: 700;
 
-    color: #0782aa;
+    color: #00566B;
 }
 
 .navbar-menu {
@@ -55,14 +62,14 @@ body {
 }
 
 .navbar-menu a:hover {
-    color: #0782aa;
+    color: #00566B;
 }
 
 
 
 /* Hanya halaman yang sedang aktif berwarna biru */
 .navbar-menu a.active {
-    color: #0782aa;
+    color: #00566B;
     font-weight: 600;
 }
 
@@ -1252,7 +1259,7 @@ body {
 }
 
 .bc-home .bc-hero-title span {
-    color: #087ea4;
+    color: #00566B;
 }
 
 .bc-home .bc-hero-description {
@@ -1275,10 +1282,13 @@ body {
     font-size: 14px;
     font-weight: 600;
     transition: .3s;
+    min-width: 48px;
+    min-height: 48px;
+    box-sizing: border-box;
 }
 
 .bc-home .bc-map-button:hover {
-    background: #066b8b;
+    background: #00566B;
     transform: translateY(-2px);
 }
 
@@ -1307,7 +1317,7 @@ body {
 }
 
 .bc-home .bc-section-heading > span {
-    color: #087ea4;
+    color: #00566B;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 1px;
@@ -1362,7 +1372,7 @@ body {
 }
 
 .bc-home .bc-culture-category {
-    color: #087ea4;
+    color: #00566B;
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -4289,5 +4299,110 @@ body {
 
     .kt-admin-page .bc-admin-content {
         padding: 16px 12px;
+    }
+}
+
+
+.peta-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-list button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* ==========================================
+   LAYOUT FOTO DAN VIDEO
+========================================== */
+
+.budaya-media-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: start;
+    width: 100%;
+}
+
+.budaya-media-column {
+    min-width: 0;
+}
+
+.budaya-media-column h2 {
+    margin-top: 0;
+    margin-bottom: 14px;
+}
+
+.budaya-media-column p {
+    margin-bottom: 20px;
+}
+
+.budaya-galeri {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.budaya-foto-item {
+    width: 160px;
+    height: 160px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #e2e8f0;
+}
+
+.budaya-foto-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.budaya-video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #000;
+}
+
+.budaya-video-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.budaya-video-player {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* RESPONSIVE HP DAN TABLET */
+@media (max-width: 768px) {
+    .budaya-media-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .budaya-foto-item {
+        width: 140px;
+        height: 140px;
     }
 }

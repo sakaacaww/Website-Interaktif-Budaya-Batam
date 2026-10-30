@@ -1,28 +1,69 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../style.css";
 
 export default function AdminDashboard() {
-    const statistik = [
-        { nama: "Total Tempat", jumlah: 2, icon: "📍" },
-        { nama: "Rumah Ibadah", jumlah: 1, icon: "🕌" },
-        { nama: "Seni & Pertunjukan", jumlah: 1, icon: "🎭" },
-        { nama: "Museum", jumlah: 0, icon: "🏛️" },
-        { nama: "Bangunan Bersejarah", jumlah: 0, icon: "🏠" },
-    ];
+    const [dataTempat, setDataTempat] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const dataTempat = [
+    // Mengambil data dari database melalui Laravel API
+    useEffect(() => {
+        const ambilData = async () => {
+            try {
+                const response = await fetch("/api/budayas", {
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Gagal mengambil data tempat budaya");
+                }
+
+                const hasil = await response.json();
+
+                setDataTempat(hasil.data || []);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        ambilData();
+    }, []);
+
+    // Menghitung jumlah berdasarkan kategori
+    const statistik = [
+        { nama: "Total Tempat", jumlah: dataTempat.length, icon: "📍" },
         {
-            id: 1,
-            nama: "Masjid Tua",
-            kategori: "Rumah Ibadah",
-            lokasi: "Kampung Tua",
+            nama: "Rumah Ibadah",
+            jumlah: dataTempat.filter(
+                (item) => item.kategori === "Rumah Ibadah"
+            ).length,
+            icon: "🕌",
         },
         {
-            id: 2,
-            nama: "Sanggar Tari",
-            kategori: "Seni & Pertunjukan",
-            lokasi: "Batam Center",
+            nama: "Seni & Pertunjukan",
+            jumlah: dataTempat.filter(
+                (item) => item.kategori === "Seni & Pertunjukan"
+            ).length,
+            icon: "🎭",
+        },
+        {
+            nama: "Museum",
+            jumlah: dataTempat.filter(
+                (item) => item.kategori === "Museum"
+            ).length,
+            icon: "🏛️",
+        },
+        {
+            nama: "Bangunan Bersejarah",
+            jumlah: dataTempat.filter(
+                (item) => item.kategori === "Bangunan Bersejarah"
+            ).length,
+            icon: "🏠",
         },
     ];
 
@@ -31,6 +72,7 @@ export default function AdminDashboard() {
             <h1 className="bc-admin-title">Dashboard Admin</h1>
 
             <div className="bc-admin-layout">
+
                 {/* SIDEBAR */}
                 <aside className="bc-admin-sidebar">
                     <div className="bc-admin-brand">
@@ -104,74 +146,76 @@ export default function AdminDashboard() {
                     <section className="bc-data-section">
                         <h3>Data Terbaru</h3>
 
-                        <div className="bc-table-wrapper">
-                            <table className="bc-data-table">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Tempat</th>
-                                        <th>Kategori</th>
-                                        <th>Lokasi</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
+                        {loading && <p>Memuat data tempat budaya...</p>}
 
-                                <tbody>
-                                    {dataTempat.map((tempat, index) => (
-                                        <tr key={tempat.id}>
-                                            <td>{index + 1}</td>
-                                            <td>{tempat.nama}</td>
-                                            <td>{tempat.kategori}</td>
-                                            <td>{tempat.lokasi}</td>
-                                            <td>
-                                                <div className="bc-table-actions">
-                                                    <button
-                                                        type="button"
-                                                        className="bc-edit-btn"
-                                                        title="Edit tempat"
-                                                        onClick={() =>
-                                                            window.location.href =
-                                                                `/admin/tempat?edit=${tempat.id}`
-                                                        }
-                                                    >
-                                                        ✎
-                                                    </button>
+                        {error && (
+                            <p style={{ color: "red" }}>{error}</p>
+                        )}
 
-                                                    <button
-                                                        type="button"
-                                                        className="bc-delete-btn"
-                                                        title="Hapus tempat"
-                                                        onClick={() =>
-                                                            alert(
-                                                                "Hubungkan tombol ini dengan fitur hapus pada halaman Data Tempat."
-                                                            )
-                                                        }
-                                                    >
-                                                        ♜
-                                                    </button>
-                                                </div>
-                                            </td>
+                        {!loading && !error && (
+                            <div className="bc-table-wrapper">
+                                <table className="bc-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Tempat</th>
+                                            <th>Kategori</th>
+                                            <th>Lokasi</th>
+                                            <th>Aksi</th>
                                         </tr>
-                                    ))}
+                                    </thead>
 
-                                    {/* Baris kosong seperti wireframe */}
-                                    {Array.from({
-                                        length: Math.max(
-                                            0,
-                                            5 - dataTempat.length
-                                        ),
-                                    }).map((_, index) => (
-                                        <tr key={`kosong-${index}`}>
-                                            <td>&nbsp;</td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    <tbody>
+                                        {dataTempat.map((tempat, index) => (
+                                            <tr key={tempat.id}>
+                                                <td>{index + 1}</td>
+                                                <td>{tempat.nama_tempat}</td>
+                                                <td>{tempat.kategori}</td>
+                                                <td>
+                                                    {tempat.latitude}, {tempat.longitude}
+                                                </td>
+                                                <td>
+                                                    <div className="bc-table-actions">
+                                                        <button
+                                                            type="button"
+                                                            className="bc-edit-btn"
+                                                            title="Edit tempat"
+                                                            onClick={() =>
+                                                                window.location.href =
+                                                                    `/admin/tempat?edit=${tempat.id}`
+                                                            }
+                                                        >
+                                                            ✎
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="bc-delete-btn"
+                                                            title="Hapus tempat"
+                                                            onClick={() =>
+                                                                alert(
+                                                                    "Fitur hapus akan dihubungkan setelah integrasi halaman Data Tempat."
+                                                                )
+                                                            }
+                                                        >
+                                                            ♜
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+
+                                        {dataTempat.length === 0 && (
+                                            <tr>
+                                                <td colSpan="5">
+                                                    Belum ada data tempat budaya.
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </section>
                 </main>
             </div>

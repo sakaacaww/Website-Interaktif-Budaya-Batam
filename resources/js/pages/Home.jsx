@@ -65,7 +65,7 @@ function Home() {
 
                 <div className="bc-hero-image">
                     <img
-                        src="/images/museum-batam.jpg"
+                        src="/images/Budaya.batam.jpg"
                         alt="Warisan budaya Kota Batam"
                     />
                 </div>

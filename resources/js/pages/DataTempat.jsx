@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../style.css";
 
 const FORM_AWAL = {
@@ -8,37 +8,60 @@ const FORM_AWAL = {
     koordinat: "",
     deskripsi: "",
     foto: null,
-    video: null,
+    video: "",
 };
 
 export default function DataTempat() {
-    const [data, setData] = useState([
-        {
-            id: 1,
-            nama: "Masjid Tua",
-            kategori: "Rumah Ibadah",
-            latitude: "1.150510",
-            longitude: "104.132119",
-            deskripsi: "",
-            foto: null,
-            video: null,
-        },
-        {
-            id: 2,
-            nama: "Sanggar Tari",
-            kategori: "Seni & Pertunjukan",
-            latitude: "1.156321",
-            longitude: "104.084210",
-            deskripsi: "",
-            foto: null,
-            video: null,
-        },
-    ]);
-
+    const [data, setData] = useState([]);
     const [cari, setCari] = useState("");
     const [modal, setModal] = useState(false);
     const [editId, setEditId] = useState(null);
     const [form, setForm] = useState({ ...FORM_AWAL });
+    const [loading, setLoading] = useState(true);
+    const [menyimpan, setMenyimpan] = useState(false);
+    const [error, setError] = useState("");
+
+    // NORMALISASI DATA DARI LARAVEL
+    function normalisasiData(item) {
+        return {
+            ...item,
+            nama: item.nama_tempat,
+            latitude: String(item.latitude ?? ""),
+            longitude: String(item.longitude ?? ""),
+        };
+    }
+
+    // MENGAMBIL DATA DARI DATABASE
+    async function ambilData() {
+        try {
+            setLoading(true);
+            setError("");
+
+            const response = await fetch("/api/budayas", {
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    hasil.message || "Gagal mengambil data tempat budaya."
+                );
+            }
+
+            setData((hasil.data || []).map(normalisasiData));
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        ambilData();
+    }, []);
 
     // PENCARIAN DATA
     const dataFilter = data.filter((item) =>
@@ -61,10 +84,10 @@ export default function DataTempat() {
         setForm({
             nama: item.nama,
             kategori: item.kategori,
-            koordinat: `${item.latitude ?? ""}, ${item.longitude ?? ""}`,
+            koordinat: `${item.latitude}, ${item.longitude}`,
             deskripsi: item.deskripsi || "",
             foto: null,
-            video: null,
+            video: item.video || "",
         });
 
         setModal(true);
@@ -77,8 +100,8 @@ export default function DataTempat() {
         setForm({ ...FORM_AWAL });
     }
 
-    // SIMPAN DATA
-    function simpanData(e) {
+    // SIMPAN DATA KE DATABASE
+    async function simpanData(e) {
         e.preventDefault();
 
         if (!form.nama.trim() || !form.koordinat.trim()) {
@@ -86,7 +109,7 @@ export default function DataTempat() {
             return;
         }
 
-        // Format input: latitude, longitude
+        // MEMISAHKAN KOORDINAT
         const bagianKoordinat = form.koordinat
             .split(",")
             .map((nilai) => nilai.trim());
@@ -112,67 +135,152 @@ export default function DataTempat() {
             longitude < -180 ||
             longitude > 180
         ) {
-            alert(
-                "Koordinat tidak valid. Periksa kembali latitude dan longitude."
-            );
+            alert("Koordinat tidak valid. Periksa kembali koordinat.");
             return;
         }
 
-        const dataForm = {
-            nama: form.nama.trim(),
-            kategori: form.kategori,
-            latitude: String(latitude),
-            longitude: String(longitude),
-            deskripsi: form.deskripsi,
-        };
-
-        if (editId !== null) {
-            setData((lama) =>
-                lama.map((item) =>
-                    item.id === editId
-                        ? {
-                              ...item,
-                              ...dataForm,
-                              foto: form.foto || item.foto || null,
-                              video: form.video || item.video || null,
-                          }
-                        : item
-                )
-            );
-        } else {
-            setData((lama) => [
-                ...lama,
-                {
-                    id: Date.now(),
-                    ...dataForm,
-                    foto: form.foto,
-                    video: form.video,
-                },
-            ]);
+        // VALIDASI LINK VIDEO
+        if (form.video.trim()) {
+            try {
+                new URL(form.video.trim());
+            } catch {
+                alert("Link video tidak valid. Masukkan URL YouTube yang benar.");
+                return;
+            }
         }
 
-        tutupForm();
+        // MENYIAPKAN DATA
+        const dataForm = new FormData();
+
+        dataForm.append("nama_tempat", form.nama.trim());
+        dataForm.append("kategori", form.kategori);
+        dataForm.append("koordinat", `${latitude}, ${longitude}`);
+        dataForm.append("deskripsi", form.deskripsi || "");
+        dataForm.append("video", form.video.trim());
+
+        if (form.foto instanceof File) {
+            dataForm.append("foto", form.foto);
+        }
+
+        const sedangEdit = editId !== null;
+
+        const url = sedangEdit
+            ? `/api/budayas/${editId}`
+            : "/api/budayas";
+
+        // METHOD SPOOFING UNTUK UPDATE
+        if (sedangEdit) {
+            dataForm.append("_method", "PUT");
+        }
+
+        try {
+            setMenyimpan(true);
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                },
+                body: dataForm,
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                const pesan = hasil.errors
+                    ? Object.values(hasil.errors).flat().join("\n")
+                    : hasil.message;
+
+                throw new Error(pesan || "Gagal menyimpan data.");
+            }
+
+            const dataBaru = normalisasiData(hasil.data);
+
+            if (sedangEdit) {
+                setData((lama) =>
+                    lama.map((item) =>
+                        item.id === editId ? dataBaru : item
+                    )
+                );
+            } else {
+                setData((lama) => [dataBaru, ...lama]);
+            }
+
+            alert(hasil.message || "Data berhasil disimpan.");
+            tutupForm();
+
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            setMenyimpan(false);
+        }
     }
 
-    // HAPUS DATA DARI TABEL
-    function hapusData(id) {
-        if (window.confirm("Yakin ingin menghapus data tempat ini?")) {
-            setData((lama) => lama.filter((item) => item.id !== id));
+    // HAPUS DATA
+    async function hapusData(id) {
+        if (!window.confirm("Yakin ingin menghapus data tempat ini?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/budayas/${id}`, {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(hasil.message || "Gagal menghapus data.");
+            }
+
+            setData((lama) =>
+                lama.filter((item) => item.id !== id)
+            );
+
+            alert(hasil.message || "Data berhasil dihapus.");
+
+        } catch (err) {
+            alert(err.message);
         }
     }
 
     // HAPUS DATA DARI FORM
-    function hapusDariForm() {
-        if (editId !== null) {
-            if (window.confirm("Yakin ingin menghapus data tempat ini?")) {
-                setData((lama) =>
-                    lama.filter((item) => item.id !== editId)
-                );
-
-                tutupForm();
-            }
-        } else {
+    async function hapusDariForm() {
+        if (editId === null) {
             setForm({ ...FORM_AWAL });
+            return;
+        }
+
+        if (!window.confirm("Yakin ingin menghapus data tempat ini?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/budayas/${editId}`, {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(hasil.message || "Gagal menghapus data.");
+            }
+
+            setData((lama) =>
+                lama.filter((item) => item.id !== editId)
+            );
+
+            alert(hasil.message || "Data berhasil dihapus.");
+            tutupForm();
+
+        } catch (err) {
+            alert(err.message);
         }
     }
 
@@ -181,6 +289,7 @@ export default function DataTempat() {
             <h1 className="dt-page-title">Kelola Data Tempat</h1>
 
             <div className="dt-layout">
+
                 {/* SIDEBAR */}
                 <aside className="dt-sidebar">
                     <div className="dt-brand">
@@ -269,7 +378,19 @@ export default function DataTempat() {
                             </thead>
 
                             <tbody>
-                                {dataFilter.length > 0 ? (
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="6" className="dt-empty">
+                                            Memuat data tempat budaya...
+                                        </td>
+                                    </tr>
+                                ) : error ? (
+                                    <tr>
+                                        <td colSpan="6" className="dt-empty">
+                                            {error}
+                                        </td>
+                                    </tr>
+                                ) : dataFilter.length > 0 ? (
                                     dataFilter.map((item, index) => (
                                         <tr key={item.id}>
                                             <td>{index + 1}</td>
@@ -277,6 +398,7 @@ export default function DataTempat() {
                                             <td>{item.kategori}</td>
                                             <td>{item.latitude}</td>
                                             <td>{item.longitude}</td>
+
                                             <td>
                                                 <div className="dt-actions">
                                                     <button
@@ -314,25 +436,27 @@ export default function DataTempat() {
                                     </tr>
                                 )}
 
-                                {Array.from({
-                                    length: Math.max(
-                                        0,
-                                        5 - dataFilter.length
-                                    ),
-                                }).map((_, index) => (
-                                    <tr
-                                        key={`kosong-${index}`}
-                                        className="dt-empty-row"
-                                        aria-hidden="true"
-                                    >
-                                        <td>&nbsp;</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                ))}
+                                {!loading &&
+                                    !error &&
+                                    Array.from({
+                                        length: Math.max(
+                                            0,
+                                            5 - dataFilter.length
+                                        ),
+                                    }).map((_, index) => (
+                                        <tr
+                                            key={`kosong-${index}`}
+                                            className="dt-empty-row"
+                                            aria-hidden="true"
+                                        >
+                                            <td>&nbsp;</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    ))}
                             </tbody>
                         </table>
                     </div>
@@ -361,6 +485,7 @@ export default function DataTempat() {
                             <h2>Tambah/edit data tempat budaya</h2>
 
                             <div className="dt-form-fields">
+
                                 {/* NAMA TEMPAT */}
                                 <div className="dt-form-row">
                                     <label htmlFor="dt-nama">
@@ -409,7 +534,7 @@ export default function DataTempat() {
                                     </select>
                                 </div>
 
-                                {/* TITIK KOORDINAT GABUNGAN */}
+                                {/* TITIK KOORDINAT */}
                                 <div className="dt-form-row">
                                     <label htmlFor="dt-koordinat">
                                         Titik Koordinat
@@ -485,36 +610,26 @@ export default function DataTempat() {
                                     </span>
                                 </div>
 
-                                {/* VIDEO */}
-                                <div className="dt-form-row dt-file-row">
-                                    <label htmlFor="dt-video">Video</label>
+                                {/* LINK VIDEO YOUTUBE */}
+                                <div className="dt-form-row">
+                                    <label htmlFor="dt-video">
+                                        Link Video
+                                    </label>
 
                                     <span className="dt-colon">:</span>
 
-                                    <label
-                                        className="dt-file-button"
-                                        htmlFor="dt-video"
-                                    >
-                                        <span>▤</span>
-
-                                        <input
-                                            id="dt-video"
-                                            type="file"
-                                            accept="video/*"
-                                            onChange={(e) =>
-                                                setForm({
-                                                    ...form,
-                                                    video:
-                                                        e.target.files?.[0] ||
-                                                        null,
-                                                })
-                                            }
-                                        />
-                                    </label>
-
-                                    <span className="dt-file-name">
-                                        {form.video?.name || ""}
-                                    </span>
+                                    <input
+                                        id="dt-video"
+                                        type="url"
+                                        value={form.video}
+                                        onChange={(e) =>
+                                            setForm({
+                                                ...form,
+                                                video: e.target.value,
+                                            })
+                                        }
+                                        placeholder="Masukkan link video YouTube"
+                                    />
                                 </div>
                             </div>
 
@@ -523,14 +638,16 @@ export default function DataTempat() {
                                 <button
                                     type="submit"
                                     className="dt-form-save"
+                                    disabled={menyimpan}
                                 >
-                                    Simpan
+                                    {menyimpan ? "Menyimpan..." : "Simpan"}
                                 </button>
 
                                 <button
                                     type="button"
                                     className="dt-form-delete"
                                     onClick={hapusDariForm}
+                                    disabled={menyimpan}
                                 >
                                     Hapus
                                 </button>

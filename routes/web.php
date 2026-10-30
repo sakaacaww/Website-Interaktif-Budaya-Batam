@@ -4,28 +4,25 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
 
 // =========================
-// HALAMAN PUBLIK
+// HALAMAN PUBLIK - REACT
 // =========================
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/peta', function () {
-    return view('peta');
-});
-
-Route::get('/tentang', function () {
-    return view('peta');
-});
+Route::get('/', fn () => view('welcome'));
+Route::get('/peta', fn () => view('welcome'));
+Route::get('/tentang', fn () => view('welcome'));
 
 // =========================
 // LOGIN ADMIN - REACT
 // =========================
 
 Route::get('/admin/login', function () {
+    if (Auth::check() && Auth::user()->role === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+
     return view('welcome');
 })->name('admin.login');
 
@@ -33,27 +30,40 @@ Route::get('/admin/login', function () {
 Route::post('/admin/login', function (Request $request) {
     $credentials = $request->validate([
         'email' => ['required', 'email'],
-        'password' => ['required'],
+        'password' => ['required', 'string'],
     ]);
 
-    if (!Auth::attempt($credentials)) {
+    // Periksa akun di database aktif.
+    $user = User::where('email', $credentials['email'])->first();
+
+    logger()->info('LOGIN CHECK', [
+        'email_received' => $credentials['email'],
+        'user_found' => $user !== null,
+        'database' => config('database.connections.mysql.database'),
+    ]);
+
+    if (!$user) {
         return response()->json([
-            'message' => 'Email atau password salah.',
+            'message' => 'Akun dengan email tersebut tidak ditemukan.',
         ], 422);
     }
 
-    $request->session()->regenerate();
-
-    if (Auth::user()->role !== 'admin') {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
+    // Pastikan akun memiliki role admin.
+    if ($user->role !== 'admin') {
         return response()->json([
             'message' => 'Akun ini bukan akun administrator.',
         ], 403);
     }
+
+    // Verifikasi email dan password.
+    if (!Auth::attempt($credentials)) {
+        return response()->json([
+            'message' => 'Password tidak sesuai.',
+        ], 422);
+    }
+
+    // Buat sesi login baru.
+    $request->session()->regenerate();
 
     return response()->json([
         'message' => 'Login berhasil.',
@@ -62,12 +72,12 @@ Route::post('/admin/login', function (Request $request) {
 })->name('admin.login.process');
 
 // =========================
-// HALAMAN ADMIN - REACT
+// HALAMAN ADMIN
 // =========================
 
 Route::middleware('auth')->group(function () {
 
-    // DASHBOARD ADMIN
+    // DASHBOARD
     Route::get('/admin/dashboard', function () {
         abort_unless(
             Auth::user()->role === 'admin',
@@ -109,5 +119,4 @@ Route::middleware('auth')->group(function () {
 
         return redirect('/admin/login');
     })->name('admin.logout');
-
 });
