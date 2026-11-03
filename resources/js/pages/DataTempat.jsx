@@ -4,7 +4,7 @@ import "../style.css";
 
 const FORM_AWAL = {
     nama: "",
-    kategori: "Rumah Ibadah",
+    category_id: "",
     koordinat: "",
     deskripsi: "",
     foto: null,
@@ -13,25 +13,35 @@ const FORM_AWAL = {
 
 export default function DataTempat() {
     const [data, setData] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [cari, setCari] = useState("");
     const [modal, setModal] = useState(false);
     const [editId, setEditId] = useState(null);
     const [form, setForm] = useState({ ...FORM_AWAL });
     const [loading, setLoading] = useState(true);
+    const [loadingKategori, setLoadingKategori] = useState(true);
     const [menyimpan, setMenyimpan] = useState(false);
     const [error, setError] = useState("");
 
+    // ==========================================
     // NORMALISASI DATA DARI LARAVEL
+    // ==========================================
+
     function normalisasiData(item) {
         return {
             ...item,
             nama: item.nama_tempat,
+            category_id: item.category_id ?? "",
+            kategori: item.category?.nama_kategori ?? "-",
             latitude: String(item.latitude ?? ""),
             longitude: String(item.longitude ?? ""),
         };
     }
 
-    // MENGAMBIL DATA DARI DATABASE
+    // ==========================================
+    // MENGAMBIL DATA BUDAYA
+    // ==========================================
+
     async function ambilData() {
         try {
             setLoading(true);
@@ -59,31 +69,71 @@ export default function DataTempat() {
         }
     }
 
+    // ==========================================
+    // MENGAMBIL DATA KATEGORI
+    // ==========================================
+
+    async function ambilKategori() {
+        try {
+            setLoadingKategori(true);
+
+            const response = await fetch("/api/categories", {
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    hasil.message || "Gagal mengambil kategori."
+                );
+            }
+
+            setCategories(hasil.data || []);
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            setLoadingKategori(false);
+        }
+    }
+
     useEffect(() => {
         ambilData();
+        ambilKategori();
     }, []);
 
+    // ==========================================
     // PENCARIAN DATA
+    // ==========================================
+
     const dataFilter = data.filter((item) =>
         `${item.nama} ${item.kategori} ${item.latitude} ${item.longitude}`
             .toLowerCase()
             .includes(cari.toLowerCase())
     );
 
+    // ==========================================
     // BUKA FORM TAMBAH
+    // ==========================================
+
     function bukaTambah() {
         setEditId(null);
         setForm({ ...FORM_AWAL });
         setModal(true);
     }
 
+    // ==========================================
     // BUKA FORM EDIT
+    // ==========================================
+
     function bukaEdit(item) {
         setEditId(item.id);
 
         setForm({
             nama: item.nama,
-            kategori: item.kategori,
+            category_id: String(item.category_id || ""),
             koordinat: `${item.latitude}, ${item.longitude}`,
             deskripsi: item.deskripsi || "",
             foto: null,
@@ -93,19 +143,35 @@ export default function DataTempat() {
         setModal(true);
     }
 
+    // ==========================================
     // TUTUP FORM
+    // ==========================================
+
     function tutupForm() {
         setModal(false);
         setEditId(null);
         setForm({ ...FORM_AWAL });
     }
 
+    // ==========================================
     // SIMPAN DATA KE DATABASE
+    // ==========================================
+
     async function simpanData(e) {
         e.preventDefault();
 
-        if (!form.nama.trim() || !form.koordinat.trim()) {
-            alert("Nama tempat dan titik koordinat wajib diisi.");
+        if (!form.nama.trim()) {
+            alert("Nama tempat wajib diisi.");
+            return;
+        }
+
+        if (!form.category_id) {
+            alert("Silakan pilih kategori terlebih dahulu.");
+            return;
+        }
+
+        if (!form.koordinat.trim()) {
+            alert("Titik koordinat wajib diisi.");
             return;
         }
 
@@ -153,7 +219,7 @@ export default function DataTempat() {
         const dataForm = new FormData();
 
         dataForm.append("nama_tempat", form.nama.trim());
-        dataForm.append("kategori", form.kategori);
+        dataForm.append("category_id", form.category_id);
         dataForm.append("koordinat", `${latitude}, ${longitude}`);
         dataForm.append("deskripsi", form.deskripsi || "");
         dataForm.append("video", form.video.trim());
@@ -194,19 +260,9 @@ export default function DataTempat() {
                 throw new Error(pesan || "Gagal menyimpan data.");
             }
 
-            const dataBaru = normalisasiData(hasil.data);
-
-            if (sedangEdit) {
-                setData((lama) =>
-                    lama.map((item) =>
-                        item.id === editId ? dataBaru : item
-                    )
-                );
-            } else {
-                setData((lama) => [dataBaru, ...lama]);
-            }
-
             alert(hasil.message || "Data berhasil disimpan.");
+
+            await ambilData();
             tutupForm();
 
         } catch (err) {
@@ -216,7 +272,10 @@ export default function DataTempat() {
         }
     }
 
+    // ==========================================
     // HAPUS DATA
+    // ==========================================
+
     async function hapusData(id) {
         if (!window.confirm("Yakin ingin menghapus data tempat ini?")) {
             return;
@@ -247,7 +306,10 @@ export default function DataTempat() {
         }
     }
 
+    // ==========================================
     // HAPUS DATA DARI FORM
+    // ==========================================
+
     async function hapusDariForm() {
         if (editId === null) {
             setForm({ ...FORM_AWAL });
@@ -283,6 +345,10 @@ export default function DataTempat() {
             alert(err.message);
         }
     }
+
+    // ==========================================
+    // TAMPILAN HALAMAN
+    // ==========================================
 
     return (
         <div className="dt-page">
@@ -509,7 +575,7 @@ export default function DataTempat() {
                                     />
                                 </div>
 
-                                {/* KATEGORI */}
+                                {/* KATEGORI DARI DATABASE */}
                                 <div className="dt-form-row">
                                     <label htmlFor="dt-kategori">
                                         Kategori
@@ -519,18 +585,30 @@ export default function DataTempat() {
 
                                     <select
                                         id="dt-kategori"
-                                        value={form.kategori}
+                                        value={form.category_id}
                                         onChange={(e) =>
                                             setForm({
                                                 ...form,
-                                                kategori: e.target.value,
+                                                category_id: e.target.value,
                                             })
                                         }
+                                        required
+                                        disabled={loadingKategori}
                                     >
-                                        <option>Rumah Ibadah</option>
-                                        <option>Seni & Pertunjukan</option>
-                                        <option>Museum</option>
-                                        <option>Bangunan Bersejarah</option>
+                                        <option value="">
+                                            {loadingKategori
+                                                ? "Memuat kategori..."
+                                                : "Pilih kategori"}
+                                        </option>
+
+                                        {categories.map((category) => (
+                                            <option
+                                                key={category.id}
+                                                value={category.id}
+                                            >
+                                                {category.nama_kategori}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -638,7 +716,7 @@ export default function DataTempat() {
                                 <button
                                     type="submit"
                                     className="dt-form-save"
-                                    disabled={menyimpan}
+                                    disabled={menyimpan || loadingKategori}
                                 >
                                     {menyimpan ? "Menyimpan..." : "Simpan"}
                                 </button>
@@ -649,7 +727,7 @@ export default function DataTempat() {
                                     onClick={hapusDariForm}
                                     disabled={menyimpan}
                                 >
-                                    Hapus
+                                    {editId === null ? "Bersihkan" : "Hapus"}
                                 </button>
                             </div>
 

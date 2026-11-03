@@ -15,7 +15,9 @@ class BudayaController extends Controller
 
     public function index()
     {
-        $budayas = Budaya::latest()->get();
+        $budayas = Budaya::with('category')
+            ->latest()
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -32,7 +34,8 @@ class BudayaController extends Controller
     {
         $validated = $request->validate([
             'nama_tempat' => 'required|string|max:255',
-            'kategori' => 'required|string|max:255',
+
+            'category_id' => 'required|exists:categories,id',
 
             'koordinat' => [
                 'required',
@@ -43,15 +46,14 @@ class BudayaController extends Controller
 
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
 
-            // Video sekarang menggunakan URL
             'video' => 'nullable|url|max:255',
         ]);
 
         // Memisahkan latitude dan longitude
         $koordinat = explode(',', $validated['koordinat']);
 
-        $latitude = trim($koordinat[0]);
-        $longitude = trim($koordinat[1]);
+        $latitude = (float) trim($koordinat[0]);
+        $longitude = (float) trim($koordinat[1]);
 
         // Validasi batas koordinat
         if (
@@ -72,10 +74,10 @@ class BudayaController extends Controller
                 ->store('budaya/foto', 'public');
         }
 
-        // Simpan data ke database
+        // Menyimpan data budaya
         $budaya = Budaya::create([
             'nama_tempat' => $validated['nama_tempat'],
-            'kategori' => $validated['kategori'],
+            'category_id' => $validated['category_id'],
             'latitude' => $latitude,
             'longitude' => $longitude,
             'deskripsi' => $validated['deskripsi'] ?? null,
@@ -86,20 +88,22 @@ class BudayaController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data budaya berhasil disimpan',
-            'data' => $budaya
+            'data' => $budaya->load('category')
         ], 201);
     }
 
     // ==========================================
-    // MENAMPILKAN DETAIL SATU DATA
+    // MENAMPILKAN DETAIL SATU DATA BUDAYA
     // ==========================================
 
     public function show(string $id)
     {
-        $budaya = Budaya::findOrFail($id);
+        $budaya = Budaya::with('category')
+            ->findOrFail($id);
 
         return response()->json([
             'success' => true,
+            'message' => 'Detail data budaya berhasil diambil',
             'data' => $budaya
         ]);
     }
@@ -114,7 +118,8 @@ class BudayaController extends Controller
 
         $validated = $request->validate([
             'nama_tempat' => 'sometimes|required|string|max:255',
-            'kategori' => 'sometimes|required|string|max:255',
+
+            'category_id' => 'sometimes|required|exists:categories,id',
 
             'koordinat' => [
                 'sometimes',
@@ -122,14 +127,14 @@ class BudayaController extends Controller
                 'regex:/^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/'
             ],
 
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'sometimes|nullable|string',
 
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
 
-            // Video sekarang menggunakan URL
             'video' => 'sometimes|nullable|url|max:255',
         ]);
 
+        // Menyiapkan data yang akan diperbarui
         $data = collect($validated)
             ->except('koordinat')
             ->toArray();
@@ -138,9 +143,10 @@ class BudayaController extends Controller
         if (isset($validated['koordinat'])) {
             $koordinat = explode(',', $validated['koordinat']);
 
-            $latitude = trim($koordinat[0]);
-            $longitude = trim($koordinat[1]);
+            $latitude = (float) trim($koordinat[0]);
+            $longitude = (float) trim($koordinat[1]);
 
+            // Validasi batas koordinat
             if (
                 $latitude < -90 || $latitude > 90 ||
                 $longitude < -180 || $longitude > 180
@@ -157,22 +163,24 @@ class BudayaController extends Controller
 
         // Memperbarui foto
         if ($request->hasFile('foto')) {
+
+            // Menghapus foto lama
             if ($budaya->foto) {
                 Storage::disk('public')->delete($budaya->foto);
             }
 
+            // Menyimpan foto baru
             $data['foto'] = $request->file('foto')
                 ->store('budaya/foto', 'public');
         }
 
-        // Memperbarui URL video
-        // Tidak ada upload atau penghapusan file video
+        // Memperbarui data budaya
         $budaya->update($data);
 
         return response()->json([
             'success' => true,
             'message' => 'Data budaya berhasil diperbarui',
-            'data' => $budaya->fresh()
+            'data' => $budaya->fresh()->load('category')
         ]);
     }
 
@@ -184,13 +192,12 @@ class BudayaController extends Controller
     {
         $budaya = Budaya::findOrFail($id);
 
-        // Hapus file foto
+        // Menghapus foto dari storage
         if ($budaya->foto) {
             Storage::disk('public')->delete($budaya->foto);
         }
 
-        // Video berupa URL, jadi tidak perlu menghapus file
-
+        // Menghapus data budaya
         $budaya->delete();
 
         return response()->json([

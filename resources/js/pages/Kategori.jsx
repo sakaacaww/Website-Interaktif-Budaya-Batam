@@ -1,44 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../style.css";
 
 const FORM_AWAL = {
     nama: "",
     deskripsi: "",
 };
-
-const KATEGORI_AWAL = [
-    {
-        id: 1,
-        nama: "Rumah Ibadah",
-        deskripsi: "Tempat ibadah berbagai agama di Batam",
-    },
-    {
-        id: 2,
-        nama: "Seni & Pertunjukan",
-        deskripsi: "Seni budaya dan pertunjukan tradisional",
-    },
-    {
-        id: 3,
-        nama: "Museum",
-        deskripsi: "Tempat penyimpanan koleksi budaya",
-    },
-    {
-        id: 4,
-        nama: "Bangunan Bersejarah",
-        deskripsi: "Bangunan bersejarah dan cagar budaya",
-    },
-    {
-        id: 5,
-        nama: "Kuliner Tradisional",
-        deskripsi: "Makanan khas dan kuliner daerah Batam",
-    },
-    {
-        id: 6,
-        nama: "Kerajinan",
-        deskripsi: "Kerajinan tangan dan karya lokal",
-    },
-];
 
 function Icon({ name, className = "" }) {
     const icons = {
@@ -82,20 +49,69 @@ function Icon({ name, className = "" }) {
 }
 
 export default function Kategori() {
-    const [data, setData] = useState(KATEGORI_AWAL);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [menyimpan, setMenyimpan] = useState(false);
     const [cari, setCari] = useState("");
     const [modal, setModal] = useState(false);
     const [editId, setEditId] = useState(null);
     const [form, setForm] = useState({ ...FORM_AWAL });
 
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+    // ==========================================
+    // MENGAMBIL DATA KATEGORI DARI LARAVEL
+    // ==========================================
+
+    async function ambilKategori() {
+        try {
+            setLoading(true);
+
+            const response = await fetch("/api/categories", {
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    hasil.message || "Gagal mengambil data kategori."
+                );
+            }
+
+            setData(
+                (hasil.data || []).map((item) => ({
+                    ...item,
+                    nama: item.nama_kategori,
+                }))
+            );
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        ambilKategori();
+    }, []);
+
+    // ==========================================
+    // PENCARIAN KATEGORI
+    // ==========================================
+
     const dataFilter = data.filter((item) =>
-        `${item.nama} ${item.deskripsi}`
+        `${item.nama} ${item.deskripsi || ""}`
             .toLowerCase()
             .includes(cari.toLowerCase())
     );
 
-    const csrfToken =
-        document.querySelector('meta[name="csrf-token"]')?.content || "";
+    // ==========================================
+    // MEMBUKA FORM TAMBAH
+    // ==========================================
 
     function bukaTambah() {
         setEditId(null);
@@ -103,14 +119,24 @@ export default function Kategori() {
         setModal(true);
     }
 
+    // ==========================================
+    // MEMBUKA FORM EDIT
+    // ==========================================
+
     function bukaEdit(item) {
         setEditId(item.id);
+
         setForm({
             nama: item.nama,
-            deskripsi: item.deskripsi,
+            deskripsi: item.deskripsi || "",
         });
+
         setModal(true);
     }
+
+    // ==========================================
+    // MENUTUP FORM
+    // ==========================================
 
     function tutupForm() {
         setModal(false);
@@ -118,7 +144,11 @@ export default function Kategori() {
         setForm({ ...FORM_AWAL });
     }
 
-    function simpanData(e) {
+    // ==========================================
+    // MENAMBAH DAN MENGEDIT KATEGORI
+    // ==========================================
+
+    async function simpanData(e) {
         e.preventDefault();
 
         const nama = form.nama.trim();
@@ -129,6 +159,7 @@ export default function Kategori() {
             return;
         }
 
+        // Memeriksa kategori duplikat
         const duplikat = data.some(
             (item) =>
                 item.nama.toLowerCase() === nama.toLowerCase() &&
@@ -140,46 +171,93 @@ export default function Kategori() {
             return;
         }
 
-        if (editId !== null) {
-            setData((lama) =>
-                lama.map((item) =>
-                    item.id === editId
-                        ? { ...item, nama, deskripsi }
-                        : item
-                )
-            );
-        } else {
-            setData((lama) => [
-                ...lama,
-                {
-                    id: Date.now(),
-                    nama,
-                    deskripsi,
-                },
-            ]);
-        }
+        const url =
+            editId !== null
+                ? `/api/categories/${editId}`
+                : "/api/categories";
 
-        tutupForm();
+        const method = editId !== null ? "PUT" : "POST";
+
+        try {
+            setMenyimpan(true);
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({
+                    nama_kategori: nama,
+                    deskripsi: deskripsi || null,
+                }),
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    hasil.message || "Gagal menyimpan kategori."
+                );
+            }
+
+            alert(hasil.message);
+
+            await ambilKategori();
+            tutupForm();
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setMenyimpan(false);
+        }
     }
 
-    function hapusData(id) {
+    // ==========================================
+    // MENGHAPUS KATEGORI
+    // ==========================================
+
+    async function hapusData(id) {
         const kategori = data.find((item) => item.id === id);
 
-        if (
-            kategori &&
-            window.confirm(
-                `Yakin ingin menghapus kategori "${kategori.nama}"?`
-            )
-        ) {
-            setData((lama) =>
-                lama.filter((item) => item.id !== id)
-            );
+        if (!kategori) return;
+
+        const konfirmasi = window.confirm(
+            `Yakin ingin menghapus kategori "${kategori.nama}"?`
+        );
+
+        if (!konfirmasi) return;
+
+        try {
+            const response = await fetch(`/api/categories/${id}`, {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                },
+            });
+
+            const hasil = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    hasil.message || "Gagal menghapus kategori."
+                );
+            }
+
+            alert(hasil.message);
 
             if (editId === id) {
                 tutupForm();
             }
+
+            await ambilKategori();
+        } catch (error) {
+            alert(error.message);
         }
     }
+
+    // ==========================================
+    // TOMBOL BERSIHKAN / HAPUS DI FORM
+    // ==========================================
 
     function hapusDariForm() {
         if (editId === null) {
@@ -188,19 +266,25 @@ export default function Kategori() {
         }
 
         hapusData(editId);
-        tutupForm();
     }
+
+    // ==========================================
+    // TAMPILAN HALAMAN
+    // ==========================================
 
     return (
         <div className="bc-admin-page kt-admin-page">
+
             {/* JUDUL HALAMAN */}
             <h1 className="bc-admin-title">
                 Kelola Data Kategori
             </h1>
 
             <div className="bc-admin-layout">
-                {/* SIDEBAR SAMA DENGAN DASHBOARD */}
+
+                {/* SIDEBAR */}
                 <aside className="bc-admin-sidebar">
+
                     <div className="bc-admin-brand">
                         Batam
                         <br />
@@ -208,6 +292,7 @@ export default function Kategori() {
                     </div>
 
                     <nav className="bc-admin-nav">
+
                         <a href="/admin/dashboard">
                             <span className="bc-nav-icon">⌂</span>
                             <span>Dashboard</span>
@@ -226,6 +311,7 @@ export default function Kategori() {
                             <span className="bc-nav-icon">▤</span>
                             <span>Kategori</span>
                         </a>
+
                     </nav>
 
                     <form
@@ -246,17 +332,19 @@ export default function Kategori() {
                             Logout
                         </button>
                     </form>
+
                 </aside>
 
                 {/* KONTEN KATEGORI */}
                 <main className="bc-admin-content kt-admin-content">
+
                     <h2 className="bc-content-heading">
                         Data Kategori
                     </h2>
 
                     <section className="kt-card">
+
                         <header className="kt-card-header">
-                           
 
                             <button
                                 type="button"
@@ -266,10 +354,12 @@ export default function Kategori() {
                                 <span className="kt-plus">+</span>
                                 Tambah Data
                             </button>
+
                         </header>
 
                         {/* PENCARIAN */}
                         <label className="kt-search">
+
                             <Icon
                                 name="search"
                                 className="kt-search-icon"
@@ -284,18 +374,24 @@ export default function Kategori() {
                                 }
                                 aria-label="Cari kategori"
                             />
+
                         </label>
 
                         {/* TABEL KATEGORI */}
                         <div className="kt-table-wrapper">
+
                             <table className="kt-table">
+
                                 <thead>
                                     <tr>
                                         <th className="kt-no-column">
                                             No
                                         </th>
+
                                         <th>Nama Kategori</th>
+
                                         <th>Deskripsi</th>
+
                                         <th className="kt-action-column">
                                             Aksi
                                         </th>
@@ -303,9 +399,21 @@ export default function Kategori() {
                                 </thead>
 
                                 <tbody>
-                                    {dataFilter.length > 0 ? (
+
+                                    {loading ? (
+                                        <tr>
+                                            <td
+                                                colSpan="4"
+                                                className="kt-empty"
+                                            >
+                                                Memuat data kategori...
+                                            </td>
+                                        </tr>
+                                    ) : dataFilter.length > 0 ? (
+
                                         dataFilter.map((item, index) => (
                                             <tr key={item.id}>
+
                                                 <td>{index + 1}</td>
 
                                                 <td className="kt-category-name">
@@ -318,6 +426,7 @@ export default function Kategori() {
 
                                                 <td>
                                                     <div className="kt-actions">
+
                                                         <button
                                                             type="button"
                                                             className="kt-edit-button"
@@ -341,11 +450,15 @@ export default function Kategori() {
                                                         >
                                                             <Icon name="delete" />
                                                         </button>
+
                                                     </div>
                                                 </td>
+
                                             </tr>
                                         ))
+
                                     ) : (
+
                                         <tr>
                                             <td
                                                 colSpan="4"
@@ -356,20 +469,28 @@ export default function Kategori() {
                                                     : "Belum ada data kategori."}
                                             </td>
                                         </tr>
+
                                     )}
+
                                 </tbody>
+
                             </table>
+
                         </div>
 
                         <div className="kt-table-footer">
                             Menampilkan {dataFilter.length} kategori
                         </div>
+
                     </section>
+
                 </main>
+
             </div>
 
             {/* MODAL TAMBAH / EDIT */}
             {modal && (
+
                 <div
                     className="kt-modal-overlay"
                     onMouseDown={(e) => {
@@ -378,10 +499,12 @@ export default function Kategori() {
                         }
                     }}
                 >
+
                     <form
                         className="kt-modal"
                         onSubmit={simpanData}
                     >
+
                         <button
                             type="button"
                             className="kt-modal-close"
@@ -400,7 +523,9 @@ export default function Kategori() {
                         </h3>
 
                         <div className="kt-form-fields">
+
                             <div className="kt-form-row">
+
                                 <label htmlFor="kt-nama">
                                     Nama Kategori
                                 </label>
@@ -420,9 +545,11 @@ export default function Kategori() {
                                     }
                                     required
                                 />
+
                             </div>
 
                             <div className="kt-form-row kt-form-description">
+
                                 <label htmlFor="kt-deskripsi">
                                     Deskripsi
                                 </label>
@@ -440,30 +567,40 @@ export default function Kategori() {
                                         })
                                     }
                                 />
+
                             </div>
+
                         </div>
 
                         <div className="kt-modal-actions">
+
                             <button
                                 type="submit"
                                 className="kt-save-button"
+                                disabled={menyimpan}
                             >
-                                Simpan
+                                {menyimpan ? "Menyimpan..." : "Simpan"}
                             </button>
 
                             <button
                                 type="button"
                                 className="kt-clear-button"
                                 onClick={hapusDariForm}
+                                disabled={menyimpan}
                             >
                                 {editId !== null
                                     ? "Hapus"
                                     : "Bersihkan"}
                             </button>
+
                         </div>
+
                     </form>
+
                 </div>
+
             )}
+
         </div>
     );
 }
